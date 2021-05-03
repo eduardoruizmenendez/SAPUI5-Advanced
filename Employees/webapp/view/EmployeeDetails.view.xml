@@ -10,7 +10,7 @@
 
             <FlexBox height="65px" alignItems="Center" justifyContent="Center">
                 <items>
-                    <Text text="{jsonEmployees>LastName}, {jsonEmployees>FirstName} " class="boldText"/>
+                    <Text text="{odataNorthwind>TitleOfCourtesy} {odataNorthwind>LastName}, {odataNorthwind>FirstName} " class="boldText"/>
                 </items>
             </FlexBox>
 
@@ -18,11 +18,11 @@
                 <items>
                     <VBox >
                         <Text text="{i18n>employeeId} " class="boldText sapUiTinyMarginEnd"/>
-                        <Text text="{jsonEmployees>EmployeeID}" />
+                        <Text text="{odataNorthwind>EmployeeID}" />
                     </VBox>
                     <VBox >
                         <Text text="{i18n>titleEmployee} " class="boldText"/>
-                        <Text text="{jsonEmployees>Title}" />
+                        <Text text="{odataNorthwind>Title}" />
                     </VBox>
                     
                 </items>
@@ -32,21 +32,21 @@
                 <items>
                     <HBox >
                         <Text text="{i18n>countryCode} " class="boldText sapUiTinyMarginEnd"/>
-                        <Text text="{jsonEmployees>Country}" />
+                        <Text text="{odataNorthwind>Country}" />
                         <layoutData>
                             <FlexItemData growFactor="3"></FlexItemData>
                         </layoutData>
                     </HBox>
                     <HBox >
                         <Text text="{i18n>city} " class="boldText sapUiTinyMarginEnd"/>
-                        <Text text="{jsonEmployees>City}" />
+                        <Text text="{odataNorthwind>City}" />
                         <layoutData>
                             <FlexItemData growFactor="2"></FlexItemData>
                         </layoutData>
                     </HBox>
                     <FlexBox direction="Row" alignItems="Start">
                         <Text text="{i18n>postalCode} " class="boldText sapUiTinyMarginEnd"/>
-                        <Text text="{jsonEmployees>PostalCode}" />
+                        <Text text="{odataNorthwind>PostalCode}" />
                         <layoutData>
                             <FlexItemData growFactor="1"></FlexItemData>
                         </layoutData>
@@ -60,7 +60,7 @@
 
             <headerToolbar>
                 <Toolbar >
-                    <Title text="{i18n>incidence} {= ${jsonEmployees>Country} === 'US' ? ${i18n>us} : ${i18n>europe} }"/>
+                    <Title text="{i18n>incidence} {= ${odataNorthwind>Country} === 'USA' ? ${i18n>us} : ${i18n>europe} }"/>
                     <ToolbarSpacer />
                     <Button text="{i18n>createIncidence}" press="onCreateIncidence"/>
                 </Toolbar>
