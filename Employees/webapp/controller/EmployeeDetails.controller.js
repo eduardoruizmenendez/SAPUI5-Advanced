@@ -1,13 +1,15 @@
 // @ts-nocheck
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
-    "logaligroup/Employees/model/formatter"
+    "logaligroup/Employees/model/formatter",
+    "sap/m/MessageBox"
 ],
     /**
      * 
      * @param {typeof sap.ui.core.mvc.Controller} Controller 
+     * @param {typeof sap.m.MessageBox} MessageBox
      */
-    function (Controller, formatter) {
+    function (Controller, formatter, MessageBox) {
 
         function onInit() {
             this._bus = sap.ui.getCore().getEventBus();
@@ -21,7 +23,8 @@ sap.ui.define([
             var incidenceModel = this.getView().getModel("incidenceModel");
             var odata = incidenceModel.getData();
             var index = odata.length;
-            odata.push({ index: index + 1 });
+            odata.push({ index: index + 1, _ValidateDate: false, EnabledSave: false });
+
             incidenceModel.refresh();
 
             newIncidence.bindElement("incidenceModel>/" + index);
@@ -30,14 +33,25 @@ sap.ui.define([
 
         function onDeleteIncidence(oEvent) {
 
-            var oContext = oEvent.getSource().getBindingContext("incidenceModel").getObject();
-            //All CRUD operations must be in Main.controller.js
-            this._bus.publish("incidence", "onDeleteIncidence", {
-                IncidenceId: oContext.IncidenceId,
-                SapId: oContext.SapId,
-                EmployeeId: oContext.EmployeeId
-            });
+            let oContext = oEvent.getSource().getBindingContext("incidenceModel").getObject();
+            let oResourceBundle = this.getView().getModel("i18n").getResourceBundle();
 
+            MessageBox.confirm(oResourceBundle.getText("confirmDeleteIncidence"), {
+
+                onClose: function (oAction) {
+
+                    if (oAction === "OK") {
+                        //All CRUD operations must be in Main.controller.js
+                        this._bus.publish("incidence", "onDeleteIncidence", {
+                            IncidenceId: oContext.IncidenceId,
+                            SapId: oContext.SapId,
+                            EmployeeId: oContext.EmployeeId
+                        });
+                    }
+
+                }.bind(this)
+
+            });
 
             /* //Before CRUD, we only remove from table in user's interface
             var tableIncidence = this.getView().byId("tableIncidence");
@@ -70,21 +84,72 @@ sap.ui.define([
         };
 
         function updateIncidenceCreationDate(oEvent) {
-            var context = oEvent.getSource().getBindingContext("incidenceModel");
-            var oContext = context.getObject();
-            oContext.CreationDateX = true;
+
+            let context = oEvent.getSource().getBindingContext("incidenceModel");
+            let oContext = context.getObject();
+            let oResourceBundle = this.getView().getModel("i18n").getResourceBundle();
+
+            if (!oEvent.getSource().isValidValue()) {     //Get current date of DatePicker
+                oContext._ValidateDate = false;
+                oContext.CreationDateState = "Error";
+                MessageBox.error(oResourceBundle.getText("errorCreationDateValue"), {
+                    title: oResourceBundle.getText("errorTitle"),
+                    onClose: null,
+                    styleClass: "",
+                    actions: MessageBox.Action.CLOSE,
+                    emphasizedAction: null,
+                    initialFocus: null,
+                    textDirection: sap.ui.core.TextDirection.Inherit
+                });
+            } else {
+                oContext.CreationDateX = true;
+                oContext._ValidateDate = true;
+                oContext.CreationDateState = "None";
+            };
+
+            if (oEvent.getSource().isValidValue() && oContext.Reason) {
+                oContext.EnabledSave = true;
+            } else {
+                oContext.EnabledSave = false;
+            };
+
+            context.getModel().refresh();
+
         };
 
         function updateIncidenceReason(oEvent) {
-            var context = oEvent.getSource().getBindingContext("incidenceModel");
-            var oContext = context.getObject();
-            oContext.ReasonX = true;
+            let context = oEvent.getSource().getBindingContext("incidenceModel");
+            let oContext = context.getObject();
+            if (oEvent.getSource().getValue()) {
+                oContext.ReasonX = true;
+                oContext.ReasonState = "None";
+            } else {
+                oContext.ReasonState = "Error";
+            };
+
+            if (oContext._ValidateDate && oEvent.getSource().getValue()) {
+                oContext.EnabledSave = true;
+            } else {
+                oContext.EnabledSave = false;
+            };
+
+            context.getModel().refresh();
         };
 
         function updateIncidenceType(oEvent) {
-            var context = oEvent.getSource().getBindingContext("incidenceModel");
-            var oContext = context.getObject();
+
+            let context = oEvent.getSource().getBindingContext("incidenceModel");
+            let oContext = context.getObject();
+
             oContext.TypeX = true;
+
+            if (oContext._ValidateDate && oContext.Reason) {
+                oContext.EnabledSave = true;
+            } else {
+                oContext.EnabledSave = false;
+            };
+
+            context.getModel().refresh();
         };
 
 
